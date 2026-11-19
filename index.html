@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en" data-theme="mars">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mars Jarvis</title>
+  <meta name="description" content="Mars Jarvis: a browser-based personal AI operating system. Phase 1 foundation.">
+  <meta name="theme-color" content="#06070c">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body data-voice="off">
+
+<!-- SVG icon sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10M10 20v-6h4v6"/></symbol>
+    <symbol id="i-notes" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5"/></symbol>
+    <symbol id="i-tasks" viewBox="0 0 24 24"><path d="M4 6l2 2 3-3M4 14l2 2 3-3M12 7h8M12 15h8"/></symbol>
+    <symbol id="i-memory" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+    <symbol id="i-micoff" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M3 3l18 18"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 17 8.5a4.75 4.75 0 0 1 0 9.5z"/></symbol>
+  </defs>
+</svg>
+
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+<div class="scanline"></div>
+
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" aria-label="Primary">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"><i></i><i></i><b></b></div>
+      <div class="brand-text"><strong>MARS</strong><span>JARVIS &middot; OS</span></div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-btn active" data-view="home"><svg class="ic"><use href="#i-home"/></svg><span>Home</span></button>
+      <button class="nav-btn" data-view="notes"><svg class="ic"><use href="#i-notes"/></svg><span>Notes</span></button>
+      <button class="nav-btn" data-view="tasks"><svg class="ic"><use href="#i-tasks"/></svg><span>Tasks</span></button>
+      <button class="nav-btn" data-view="memory"><svg class="ic"><use href="#i-memory"/></svg><span>Memory</span></button>
+      <button class="nav-btn" data-view="voice"><svg class="ic"><use href="#i-mic"/></svg><span>Voice</span></button>
+      <button class="nav-btn" data-view="settings"><svg class="ic"><use href="#i-settings"/></svg><span>Settings</span></button>
+    </nav>
+
+    <div class="side-foot">
+      <div class="side-line"><i class="dot" id="sideDriveDot"></i><span id="sideDriveText">Drive offline</span></div>
+      <div class="side-line"><i class="dot" id="sideMicDot"></i><span id="sideMicText">Mic standby</span></div>
+      <div class="phase">PHASE 1 &middot; FOUNDATION</div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">MARS JARVIS</p>
+        <h2 id="viewTitle">Command Center</h2>
+      </div>
+      <div class="top-right">
+        <button class="btn sm ghost" id="topMic" data-action="listen-toggle" title="Start / stop listening">
+          <svg class="ic"><use href="#i-mic"/></svg><span id="topMicText">Listen</span>
+        </button>
+        <button class="user-chip" id="userChip" data-action="connect" title="Google account">
+          <span class="avatar" id="userAvatar">?</span>
+          <span class="user-name" id="userName">Connect Drive</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="banner" id="activationBanner" hidden>
+      Tap anywhere to enable Jarvis&rsquo;s voice. Browsers block speech until you interact with the page.
+    </div>
+
+    <!-- ========== HOME ========== -->
+    <section id="view-home" class="view active" aria-labelledby="viewTitle">
+      <div class="panel hud hero">
+        <div class="orb-wrap">
+          <div class="orb" data-orb>
+            <i class="ring r1"></i><i class="ring r2"></i><i class="ring r3"></i>
+            <canvas class="orb-canvas"></canvas>
+            <div class="core"></div>
+          </div>
+          <div class="orb-label" data-voice-label>STANDBY</div>
+        </div>
+
+        <div class="hero-text">
+          <p class="eyebrow typed" id="bootLine">SYSTEM ONLINE &middot; PHASE 1</p>
+          <h1 id="greeting">Hello</h1>
+          <p class="sub" id="heroSub">Your personal AI operating system. Say &ldquo;Jarvis&rdquo; followed by a command.</p>
+
+          <div class="chips">
+            <span class="chip" id="chipDrive"><i class="dot"></i><span>Drive offline</span></span>
+            <span class="chip" id="chipMic"><i class="dot"></i><span>Mic standby</span></span>
+            <span class="chip" id="chipWake"><i class="dot on"></i><span>Wake word: jarvis</span></span>
+          </div>
+
+          <div class="cta-row" id="heroCta">
+            <button class="btn primary" data-action="connect" id="btnConnectHero">
+              <svg class="ic"><use href="#i-cloud"/></svg><span>Connect Google Drive</span>
+            </button>
+            <button class="btn" data-action="listen-toggle">
+              <svg class="ic"><use href="#i-mic"/></svg><span class="listen-text">Start listening</span>
+            </button>
+          </div>
+
+          <form class="cmd-form" data-cmd-form autocomplete="off">
+            <input type="text" placeholder="Type a command, e.g. add note blockchain idea" aria-label="Type a command">
+            <button class="btn primary" type="submit">Run</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="panel hud stat"><span class="stat-label">NOTES</span><span class="stat-value" id="statNotes">0</span></div>
+        <div class="panel hud stat"><span class="stat-label">OPEN TASKS</span><span class="stat-value" id="statTasks">0</span></div>
+        <div class="panel hud stat"><span class="stat-label">HIGH PRIORITY</span><span class="stat-value" id="statHigh">0</span></div>
+        <div class="panel hud stat"><span class="stat-label">LAST SYNC</span><span class="stat-value small" id="statSync">&mdash;</span></div>
+      </div>
+
+      <div class="home-cols">
+        <div class="panel hud">
+          <div class="panel-head"><h3>Priority tasks</h3><button class="btn ghost sm" data-go="tasks">Open</button></div>
+          <ul class="mini-list" id="homeTasks"></ul>
+        </div>
+        <div class="panel hud">
+          <div class="panel-head"><h3>Latest notes</h3><button class="btn ghost sm" data-go="notes">Open</button></div>
+          <ul class="mini-list" id="homeNotes"></ul>
+        </div>
+        <div class="panel hud">
+          <div class="panel-head"><h3>Recent activity</h3><button class="btn ghost sm" data-go="voice">Console</button></div>
+          <ul class="mini-list" id="homeActivity"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== NOTES ========== -->
+    <section id="view-notes" class="view" aria-label="Notes">
+      <div class="toolbar">
+        <div class="search">
+          <svg class="ic"><use href="#i-search"/></svg>
+          <input type="search" id="noteSearch" placeholder="Search notes" aria-label="Search notes">
+        </div>
+        <button class="btn primary" data-action="note-new"><svg class="ic"><use href="#i-plus"/></svg><span>New note</span></button>
+      </div>
+      <div class="notes-grid" id="notesGrid"></div>
+    </section>
+
+    <!-- ========== TASKS ========== -->
+    <section id="view-tasks" class="view" aria-label="Tasks">
+      <form class="panel hud task-add" id="taskForm" autocomplete="off">
+        <input type="text" id="taskTitle" placeholder="Add a task" aria-label="Task title" required>
+        <select id="taskPriority" aria-label="Priority">
+          <option value="high">High</option>
+          <option value="medium" selected>Medium</option>
+          <option value="low">Low</option>
+        </select>
+        <button class="btn primary" type="submit"><svg class="ic"><use href="#i-plus"/></svg><span>Add</span></button>
+      </form>
+      <div class="tabs" id="taskTabs">
+        <button class="tab active" data-filter="all">All</button>
+        <button class="tab" data-filter="open">Open</button>
+        <button class="tab" data-filter="done">Done</button>
+      </div>
+      <ul class="task-list" id="taskList"></ul>
+    </section>
+
+    <!-- ========== MEMORY ========== -->
+    <section id="view-memory" class="view" aria-label="Memory">
+      <div class="panel hud mem-head">
+        <div>
+          <p class="eyebrow">STORAGE &middot; GOOGLE DRIVE</p>
+          <h3 id="memFile">jarvis-data.json</h3>
+          <p class="sub" id="memMeta">Not connected.</p>
+        </div>
+        <div class="mem-actions">
+          <button class="btn" data-action="mem-save">Save now</button>
+          <button class="btn" data-action="mem-reload">Reload from Drive</button>
+          <button class="btn" data-action="mem-export">Export JSON</button>
+          <a class="btn ghost" id="memOpen" target="_blank" rel="noopener" hidden>Open in Drive</a>
+        </div>
+      </div>
+
+      <div class="tabs" id="memTabs">
+        <button class="tab active" data-col="notes">Notes</button>
+        <button class="tab" data-col="tasks">Tasks</button>
+        <button class="tab" data-col="research">Research</button>
+        <button class="tab" data-col="conversations">Conversations</button>
+        <button class="tab" data-col="settings">Settings</button>
+      </div>
+      <div class="panel hud">
+        <div class="panel-head">
+          <h3 id="memColTitle">Notes</h3>
+          <button class="btn ghost sm" data-action="rec-new" id="memNew">New record</button>
+        </div>
+        <ul class="rec-list" id="memList"></ul>
+      </div>
+    </section>
+
+    <!-- ========== VOICE CONSOLE ========== -->
+    <section id="view-voice" class="view" aria-label="Voice console">
+      <div class="console-grid">
+        <div class="panel hud console-main">
+          <div class="orb-wrap">
+            <div class="orb big" data-orb>
+              <i class="ring r1"></i><i class="ring r2"></i><i class="ring r3"></i>
+              <canvas class="orb-canvas"></canvas>
+              <div class="core"></div>
+            </div>
+            <div class="orb-label" data-voice-label>STANDBY</div>
+          </div>
+
+          <div class="transcript" id="liveTranscript" aria-live="polite">Say &ldquo;Jarvis&rdquo; and then your command.</div>
+          <div class="reply" id="liveReply" aria-live="polite"></div>
+
+          <div class="controls">
+            <button class="btn" data-action="listen-toggle" id="btnListen"><svg class="ic"><use href="#i-mic"/></svg><span class="listen-text">Start listening</span></button>
+            <button class="btn ptt" id="btnPtt" title="Hold to talk (or hold Space)"><svg class="ic"><use href="#i-mic"/></svg><span>Hold to talk</span></button>
+            <button class="btn" data-action="mute-toggle" id="btnMute"><svg class="ic"><use href="#i-micoff"/></svg><span class="mute-text">Mute</span></button>
+          </div>
+
+          <label class="switch">
+            <input type="checkbox" data-setting="speak">
+            <span class="track"></span><span>Spoken responses</span>
+          </label>
+
+          <form class="cmd-form" data-cmd-form autocomplete="off">
+            <input type="text" placeholder="Or type a command" aria-label="Type a command">
+            <button class="btn primary" type="submit">Send</button>
+          </form>
+          <p class="hint" id="voiceSupportHint" hidden></p>
+        </div>
+
+        <div class="panel hud history">
+          <div class="panel-head">
+            <h3>Command history</h3>
+            <button class="btn ghost sm" data-action="clear-history">Clear</button>
+          </div>
+          <ol class="history-list" id="historyList"></ol>
+
+          <details class="examples">
+            <summary>Example commands</summary>
+            <ul>
+              <li>&ldquo;Jarvis, add note blockchain idea&rdquo;</li>
+              <li>&ldquo;Jarvis, show notes&rdquo; &middot; &ldquo;search notes blockchain&rdquo;</li>
+              <li>&ldquo;Jarvis, edit note 1 to new text&rdquo; &middot; &ldquo;delete note 2&rdquo;</li>
+              <li>&ldquo;Jarvis, add task call the bank&rdquo; &middot; &ldquo;add high priority task pay rent&rdquo;</li>
+              <li>&ldquo;Jarvis, complete task 1&rdquo; &middot; &ldquo;delete task 2&rdquo;</li>
+              <li>&ldquo;Jarvis, set task 3 to low priority&rdquo;</li>
+              <li>&ldquo;Jarvis, show tasks&rdquo; &middot; &ldquo;open memory&rdquo; &middot; &ldquo;undo&rdquo;</li>
+            </ul>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SETTINGS ========== -->
+    <section id="view-settings" class="view" aria-label="Settings">
+      <div class="settings-grid">
+
+        <div class="panel hud">
+          <div class="panel-head"><h3>Google Drive</h3></div>
+          <p class="sub">Mars Jarvis stores everything in a single file, <code>jarvis-data.json</code>, in your Google Drive. It can only see files it created (scope <code>drive.file</code>).</p>
+          <label class="field">
+            <span>OAuth Client ID</span>
+            <input type="text" id="clientId" placeholder="1234567890-abc.apps.googleusercontent.com" spellcheck="false" autocomplete="off">
+          </label>
+          <p class="hint">Authorized JavaScript origin to register: <code id="originText"></code></p>
+          <div class="cta-row">
+            <button class="btn" data-action="save-client">Save Client ID</button>
+            <button class="btn primary" data-action="connect" id="btnConnectSettings">Connect Google Drive</button>
+            <button class="btn ghost" data-action="disconnect" id="btnDisconnect" hidden>Disconnect</button>
+          </div>
+          <p class="hint" id="authStatus"></p>
+        </div>
+
+        <div class="panel hud">
+          <div class="panel-head"><h3>Voice</h3></div>
+          <label class="field"><span>Wake word</span><input type="text" data-setting="wakeWord" spellcheck="false"></label>
+          <label class="field"><span>Recognition language</span>
+            <select data-setting="lang">
+              <option value="en-US">English (US)</option>
+              <option value="en-GB">English (UK)</option>
+              <option value="id-ID">Bahasa Indonesia</option>
+              <option value="es-ES">Espa&ntilde;ol</option>
+              <option value="fr-FR">Fran&ccedil;ais</option>
+              <option value="de-DE">Deutsch</option>
+              <option value="pt-BR">Portugu&ecirc;s (Brasil)</option>
+              <option value="ja-JP">&#26085;&#26412;&#35486;</option>
+            </select>
+          </label>
+          <label class="field"><span>Voice</span><select id="voiceSelect" data-setting="voiceURI"><option value="">Automatic</option></select></label>
+          <label class="field"><span>Speed <output data-out="rate"></output></span><input type="range" min="0.6" max="1.6" step="0.05" data-setting="rate"></label>
+          <label class="field"><span>Pitch <output data-out="pitch"></output></span><input type="range" min="0.5" max="1.5" step="0.05" data-setting="pitch"></label>
+          <label class="field"><span>Volume <output data-out="volume"></output></span><input type="range" min="0.1" max="1" step="0.05" data-setting="volume"></label>
+          <label class="field"><span>Stay awake after wake word (seconds)</span><input type="number" min="3" max="30" data-setting="awakeSeconds"></label>
+          <label class="switch"><input type="checkbox" data-setting="speak"><span class="track"></span><span>Spoken responses</span></label>
+          <label class="switch"><input type="checkbox" data-setting="autoStart"><span class="track"></span><span>Start listening automatically</span></label>
+          <div class="cta-row"><button class="btn" data-action="test-voice">Test voice</button></div>
+        </div>
+
+        <div class="panel hud">
+          <div class="panel-head"><h3>Appearance</h3></div>
+          <label class="field"><span>Theme</span>
+            <select data-setting="theme">
+              <option value="mars">Mars (ember)</option>
+              <option value="stark">Stark (arc blue)</option>
+            </select>
+          </label>
+          <p class="hint">Settings are saved to <code>jarvis-data.json</code> once Drive is connected.</p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============ DIALOGS ============ -->
+<dialog id="noteDialog" class="dialog">
+  <form method="dialog" id="noteForm" class="dialog-body" autocomplete="off">
+    <h3 id="noteDialogTitle">New note</h3>
+    <label class="field"><span>Title</span><input type="text" id="noteTitleInput" maxlength="120"></label>
+    <label class="field"><span>Content</span><textarea id="noteContentInput" rows="8" required></textarea></label>
+    <div class="dialog-actions">
+      <button type="button" class="btn ghost danger" id="noteDelete" hidden>Delete</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn ghost" data-close>Cancel</button>
+      <button type="submit" class="btn primary">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="recordDialog" class="dialog">
+  <form method="dialog" id="recordForm" class="dialog-body">
+    <h3 id="recordDialogTitle">Edit record</h3>
+    <p class="hint">Edit the raw JSON for this record.</p>
+    <textarea id="recordJson" rows="12" spellcheck="false" class="mono"></textarea>
+    <p class="hint err" id="recordErr"></p>
+    <div class="dialog-actions">
+      <span class="spacer"></span>
+      <button type="button" class="btn ghost" data-close>Cancel</button>
+      <button type="submit" class="btn primary">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="js/config.js"></script>
+<script src="js/drive.js"></script>
+<script src="js/memory.js"></script>
+<script src="js/notes.js"></script>
+<script src="js/tasks.js"></script>
+<script src="js/voice.js"></script>
+<script src="js/commands.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
